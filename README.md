@@ -1,5 +1,8 @@
 # seed2022
 
+### 安装
+
+参考 https://github.com/FederatedAI/KubeFATE/blob/master/docker-deploy/README_zh.md
 
 ### 数据处理
 
@@ -14,7 +17,8 @@
 
 ### 运行模型
 
-执行 `python sbt_lr.py` 运行
+1. 终端执行命令 `pipeline init --ip {guest_ip} --port 9380` 连接 `guest` fate flow server
+2. 执行 `python sbt_lr.py` 运行
 
 ### 查看状态
 
