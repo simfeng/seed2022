@@ -8,5 +8,3 @@ parties: # parties default id
     - 10000
 
 work_mode: 1 # 0 for standalone, or 1 for cluster
-
-data_base_dir: "/Users/zhengquan/Code/SEED2022/seed2022" # path to project base where data is located
