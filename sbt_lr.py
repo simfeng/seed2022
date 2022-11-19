@@ -92,7 +92,7 @@ def main(config="config.yaml", namespace="seed2022"):
     # secure boost component
     hetero_secure_boost_0 = HeteroSecureBoost(
         name="hetero_secure_boost_0",
-        num_trees=10,
+        num_trees=8,
         task_type="regression",
         objective_param={"objective": "lse"},
         encrypt_param={"method": "Paillier"},
@@ -116,16 +116,15 @@ def main(config="config.yaml", namespace="seed2022"):
     pipeline.add_component(intersect_1,
                            data=Data(data=data_transform_1.output.data))
 
-    pipeline.add_component(scale_train_0,
-                           data=Data(data=intersect_0.output.data))
-    pipeline.add_component(scale_train_1,
-                           data=Data(data=intersect_1.output.data),
-                           model=Model(scale_train_0.output.model))
+    # pipeline.add_component(scale_train_0,
+    #                        data=Data(data=intersect_0.output.data))
+    # pipeline.add_component(scale_train_1,
+    #                        data=Data(data=intersect_1.output.data),
+    #                        model=Model(scale_train_0.output.model))
 
-    pipeline.add_component(
-        hetero_secure_boost_0,
-        data=Data(train_data=scale_train_0.output.data,
-                  validate_data=scale_train_1.output.data))
+    pipeline.add_component(hetero_secure_boost_0,
+                           data=Data(train_data=intersect_0.output.data,
+                                     validate_data=intersect_1.output.data))
     pipeline.add_component(evaluation_0,
                            data=Data(data=hetero_secure_boost_0.output.data))
 
@@ -147,7 +146,7 @@ def main(config="config.yaml", namespace="seed2022"):
     # predict
     # deploy required components
     pipeline.deploy_component([
-        data_transform_0, intersect_0, scale_train_0, hetero_secure_boost_0,
+        data_transform_0, intersect_0, hetero_secure_boost_0,
         evaluation_0
     ])
 
