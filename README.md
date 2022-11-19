@@ -1,5 +1,8 @@
 # seed2022
 
+### 安装
+
+参考 https://github.com/FederatedAI/KubeFATE/blob/master/docker-deploy/README_zh.md
 
 ### 数据处理
 
