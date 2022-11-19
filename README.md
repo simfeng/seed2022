@@ -27,4 +27,4 @@
 
 **注意**
 
-模型文件 `sbt_lr.py` 使用的配置来自 `config.yaml`, 但是 'upload.ipynb` 里面的配置直接写在里面了
+模型文件 `sbt_lr.py` 使用的配置来自 `config.yaml`, 但是 `upload.ipynb` 里面的配置直接写在里面了
