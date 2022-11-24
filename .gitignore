@@ -1,6 +1,9 @@
 *.pkl
 初赛数据集
+tune/*
 output/*
+guest/output/*
+host/output/*
 
 .DS_Store
 
