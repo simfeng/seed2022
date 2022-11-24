@@ -67,7 +67,7 @@ def main(config="./config.yaml", namespace="seed2022"):
             "need_cv": True,
             "n_splits": 5,
             "shuffle": False,
-            "random_seed": 103
+            "random_seed": 3
         })
 
     # evaluation

@@ -22,11 +22,17 @@ def main(config="config.yaml", namespace="seed2022"):
     guest_test_data = {"name": "gover_data_test", "namespace": namespace}
     host_test_data = {"name": "power_data_test", "namespace": namespace}
 
-    # guest_train_data = {"name": "gover_data_train_3", "namespace": namespace}
-    # host_train_data = {"name": "power_data_train_3", "namespace": namespace}
+    guest_train_data = {
+        "name": "gover_data_train_3_all_one_hot",
+        "namespace": namespace
+    }
+    host_train_data = {
+        "name": "power_data_train_3_all_one_hot",
+        "namespace": namespace
+    }
 
-    # guest_test_data = {"name": "gover_data_test_3", "namespace": namespace}
-    # host_test_data = {"name": "power_data_test_3", "namespace": namespace}
+    guest_test_data = {"name": "gover_data_test_3_all_one_hot", "namespace": namespace}
+    host_test_data = {"name": "power_data_test_3_all_one_hot", "namespace": namespace}
     # obtain config
     if isinstance(config, str):
         config = load_job_config(config)
@@ -84,10 +90,11 @@ def main(config="config.yaml", namespace="seed2022"):
                                max_iter=10,
                                early_stop="weight_diff",
                                batch_size=-1,
-                               learning_rate=0.3,
-                               decay=0.0,
+                               learning_rate=0.1,
+                               decay=0.1,
                                decay_sqrt=False,
-                               init_param={"init_method": "zeros"})
+                               validation_freqs=1,
+                               init_param={"init_method": "random_uniform"})
     evaluation_0 = Evaluation(name='evaluation_0', eval_type='regression')
 
     pipeline.add_component(reader_0)
@@ -106,10 +113,9 @@ def main(config="config.yaml", namespace="seed2022"):
     pipeline.add_component(scale_train_1,
                            data=Data(data=intersection_1.output.data),
                            model=Model(scale_train_0.output.model))
-    pipeline.add_component(
-        hetero_linr_0,
-        data=Data(train_data=scale_train_0.output.data,
-                  validate_data=scale_train_1.output.data))
+    pipeline.add_component(hetero_linr_0,
+                           data=Data(train_data=scale_train_0.output.data,
+                                     validate_data=scale_train_1.output.data))
     pipeline.add_component(evaluation_0,
                            data=Data(data=hetero_linr_0.output.data))
 
@@ -128,11 +134,15 @@ def main(config="config.yaml", namespace="seed2022"):
 
 
     # PipeLine.load_model_from_file("pipeline_saved.pkl")
+    # pipeline = PipeLine.load_model_from_file('pipeline_saved.pkl')
+    # pipeline.deploy_component([pipeline.data_transform_0, pipeline.intersect_0, pipeline.hetero_secureboost_0]);
 
     # predict
     # deploy required components
     pipeline.deploy_component([
-        data_transform_0, intersection_0, scale_train_0, hetero_linr_0,
+        data_transform_0, intersection_0,
+        scale_train_0,
+        hetero_linr_0,
         evaluation_0
     ])
 
