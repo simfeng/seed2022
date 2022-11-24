@@ -6,19 +6,30 @@
 
 ### 数据处理
 
+**Guest(政府)**
+
 1. 初赛数据集拷贝到当前目录，并删除所有csv文件的英文表头
 2. 当前目录下创建 `output`, `output/model` 两个目录
-3. 运行 `data_process.py` 文件, 注意文件结尾有一些参数需要配置
-4. 会在 `output` 目录下生成 `{gover|power}_data_{train|test}_3.csv` 和 `ID_date_templ_test.csv` 至少五个文件
+3. 运行 `01_data_process.py` 文件, 注意文件结尾有一些参数需要配置
+4. 会在 `output` 目录下生成目标文件
+
+**Host(电力)**
+
+1. 初赛数据集拷贝到当前目录，并删除所有csv文件的英文表头
+2. 当前目录下创建 `output`两个目录
+3. 运行 `01_data_process.py` 文件, 注意文件结尾有一些参数需要配置
+4. 会在 `output` 目录下生成目标文件
 
 ### 上传数据
 
-执行 `upload.ipynb` 里面的代码分别上传 `guest` 和 `host` 数据
+分别在 `guest` 和 `host` 的机器上执行对应目录下的 `02_upload.py` 文件上传数据。
 
 ### 运行模型
 
+`guest` 端执行
+
 1. 终端执行命令 `pipeline init --ip {guest_ip} --port 9380` 连接 `guest` fate flow server
-2. 执行 `python sbt_lr.py` 运行
+2. 执行 `python 03_sbt_linR_binning.py` 运行
 
 ### 查看状态
 
@@ -26,9 +37,5 @@
 
 ### 生成结果
 
-1. 运行完成后, 会在 `output` 目录下生成 `result.csv` 文件
-2. 执行 `load_and_predict.ipynb` 里面的命令可以生成提交文件 `submit.csv`
+运行完成后, 会在 `output` 目录下生成 `03_result.csv` 和 `04_submit.csv` 文件
 
-**注意**
-
-模型文件 `sbt_lr.py` 使用的配置来自 `config.yaml`, 但是 `upload.ipynb` 里面的配置直接写在里面了
