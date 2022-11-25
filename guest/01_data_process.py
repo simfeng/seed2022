@@ -207,9 +207,10 @@ def gover_data(start_date='2017-1-1',
         ['ID', 'season'])['month_amount'].transform('mean')
     gover_data['year_month_amount_avg'] = gover_data.groupby(
         ['ID', 'year'])['month_amount'].transform('mean')
-    # gover_data[gover_data['zijin'] == 0] = gover_data['zijin'].mean()
+
 
     gover_data = pd.merge(gover_data, base_df, on=['ID'], how='left')
+    gover_data[gover_data['zijin'] == 0] = gover_data['zijin'].mean()
 
     gover_data['sid'] = gover_data.apply(
         lambda x:
@@ -233,11 +234,12 @@ def gover_data(start_date='2017-1-1',
 
     if 'simple' in suffix:
 
-        feature_list = ['month_amount', 'year_amount', 'season', 'zijin', 'year'
-                        ] + [
-                            'month_amount_avg', 'y_avg', 'year_y_avg',
-                            'sjje_per_month', 'year_month_amount_avg'
-                        ] + ['data_type']
+        feature_list = [
+            'month_amount', 'year_amount', 'season', 'zijin', 'year'
+        ] + [
+            'month_amount_avg', 'y_avg', 'year_y_avg', 'sjje_per_month',
+            'year_month_amount_avg'
+        ] + ['data_type']
         gover_data = gover_data[feature_list]
 
     if data_type == 'test':
@@ -254,4 +256,5 @@ def gover_data(start_date='2017-1-1',
 if __name__ == '__main__':
     data_type = 'train' # test: 处理测试数据， train: 处理训练数据
 
-    gover_data(data_type=data_type)
+    gover_data(data_type='test')
+    gover_data(data_type='train')
