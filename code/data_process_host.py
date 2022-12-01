@@ -18,6 +18,34 @@ MONTH_SEASON_MAP = {
     12: 4
 }
 
+def rydl(self):
+    """
+    dlsj_rydl.csv：用户日用电量表
+    headers: 公司ID,日用电量,日期
+    """
+
+    data_type = self.data_type
+    dataset_dir = self.dataset_dir
+    rydl_file = dataset_dir / data_type / 'power_data' / 'dlsj_rydl.csv'
+    rydl_df = pd.read_csv(rydl_file, header=[1],
+                          parse_dates=['日期'])[['公司ID', '日用电量', '日期']]
+    rydl_df = rydl_df.rename(
+        columns={
+            '公司ID': 'ID',
+            '日用电量': 'rydl',
+            '日期': 'date'
+        })
+    rydl_df['date'] = pd.to_datetime(
+        rydl_df['date'],
+        format="%Y%m").to_numpy().astype('datetime64[M]').astype(str)
+    rydl_df = rydl_df.groupby(['ID',
+                               'date']).mean().sort_values(['ID', 'date'
+                                                            ]).reset_index()
+    rydl_df['rydl'] = rydl_df['rydl'].fillna(
+        rydl_df.groupby('ID')['rydl'].transform('mean'))
+        
+    return rydl_df
+
 def power_data_jcxx(self):
     data_type = self.data_type
     dataset_dir = self.dataset_dir
@@ -55,8 +83,10 @@ def power_data(self):
     data_type = self.data_type
     dataset_dir = self.dataset_dir
     output_dir = self.output_dir
+    suffix = self.suffix
 
     jcxx_df = power_data_jcxx(self)
+    rydl_df = rydl(self)
 
     dlsj_file = dataset_dir / data_type / 'power_data' / 'dlsj_df.csv'
 
@@ -102,6 +132,12 @@ def power_data(self):
     merge_dlsj = pd.merge(df_templ, dlsj_df, on=['ID', 'date'],
                         how='left').sort_values(
                             ['ID', 'date']).reset_index().drop(columns=['index'])
+
+    merge_dlsj = pd.merge(merge_dlsj, rydl_df, on=['ID', 'date'],
+                          how='left').sort_values(
+                              ['ID',
+                               'date']).reset_index().drop(columns=['index'])
+
     merge_dlsj['nyl'] = merge_dlsj['nyl'].fillna(
         merge_dlsj.groupby('ID')['nyl'].transform('mean'))
     merge_dlsj['ysje'] = merge_dlsj['ysje'].fillna(
@@ -138,17 +174,17 @@ def power_data(self):
         axis=1)
 
     # categorical columns
-    cate_columns = [
-        'year', 'season', 'fylb', 'ynlb', 'fhxz', 'yhfl', 'schsxfl', 'scbc',
-        'ydlb', 'sshy'
-    ]
-    for col in cate_columns:
-        _map = {key: i for i, key in enumerate(power_data[col].unique())}
-        power_data[col] = power_data[col].map(_map).astype(int)
+    # cate_columns = [
+    #     'year', 'season', 'fylb', 'ynlb', 'fhxz', 'yhfl', 'schsxfl', 'scbc',
+    #     'ydlb', 'sshy'
+    # ]
+    # for col in cate_columns:
+    #     _map = {key: i for i, key in enumerate(power_data[col].unique())}
+    #     power_data[col] = power_data[col].map(_map).astype(int)
 
     if 'simple' in suffix:
         feature_list = ['nyl', 'ysje', 'ssje', 'season', 'ynlb', 'year'
-                        ] + ['data_type'] + ['ysje_avg', 'nyl_avg']
+                        ] + ['data_type'] + ['ysje_avg', 'nyl_avg'] + ['rydl']
         power_data = power_data[feature_list]
 
     if data_type == 'test':

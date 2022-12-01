@@ -17,6 +17,36 @@ MONTH_SEASON_MAP = {
     12: 4
 }
 
+def gskz(self):
+    """
+    dj_nsrxx_kz.csv：工商快照表（复赛提供）
+    headers: 公司ID,核算方式代码,从业人数,外籍从业人数,合伙人数,雇工人数,固定工人数,组织机构类型代码,会计制度（准则）代码,历史最大注册资本,投资总额,自然人投资比例,外资投资比例,国有投资比例,国有控股类型代码,总分机构类型代码
+    """
+    data_type = self.data_type
+    dataset_dir = self.dataset_dir
+    kz_file = dataset_dir / data_type / 'government_data' / 'dj_nsrxx_kz.csv'
+    kz_df = pd.read_csv(kz_file, header=[1])[[
+        '公司ID', '从业人数', '会计制度（准则）代码', '历史最大注册资本', '投资总额', '总分机构类型代码'
+    ]]
+    kz_df = kz_df.rename(
+        columns={
+            '公司ID': 'ID',
+            '从业人数': 'cyrs',
+            '会计制度（准则）代码': 'kjdm',
+            '历史最大注册资本': 'lszdzb',
+            '投资总额': 'tzze',
+            '总分机构类型代码': 'zfjglxdm'
+        })
+
+    kz_df = kz_df.reset_index(drop=True).drop_duplicates(subset=['ID'],
+                                                         keep='first',
+                                                         inplace=False)
+    kz_df['cyrs'] = kz_df['cyrs'].fillna(kz_df['cyrs'].mean())
+    kz_df['lszdzb'] = kz_df['lszdzb'].fillna(kz_df['lszdzb'].mean())
+    kz_df['tzze'] = kz_df['tzze'].fillna(kz_df['tzze'].mean())
+
+    return kz_df
+
 def jks(self):
     """缴款书"""
 
@@ -141,9 +171,9 @@ def base_info(self):
     return base_df
 
 
-
 def gover_data(self):
 
+    kz_df = gskz(self)
     base_df = base_info(self)
     xssr_df = xssr(self)
     jks_df, ID_list = jks(self)
@@ -220,6 +250,7 @@ def gover_data(self):
 
     gover_data = pd.merge(gover_data, base_df, on=['ID'], how='left')
     gover_data[gover_data['zijin'] == 0] = gover_data['zijin'].mean()
+    gover_data = pd.merge(gover_data, kz_df, on=['ID'], how='left')
 
     gover_data['sid'] = gover_data.apply(
         lambda x:
@@ -233,22 +264,21 @@ def gover_data(self):
         axis=1)
 
     # categorical columns
-    cate_columns = [
-        'year', 'season', 'sbsx', 'gzlx', 'zuzhi', 'jiguan', 'zt', 'hylb',
-        'jiguan', 'ssxq', 'slrq'
-    ]
-    for col in cate_columns:
-        _map = {key: i for i, key in enumerate(gover_data[col].unique())}
-        gover_data[col] = gover_data[col].map(_map).astype(int)
+    # cate_columns = [
+    #     'year', 'season', 'sbsx', 'gzlx', 'zuzhi', 'jiguan', 'zt', 'hylb',
+    #     'jiguan', 'ssxq', 'slrq'
+    # ]
+    # for col in cate_columns:
+    #     _map = {key: i for i, key in enumerate(gover_data[col].unique())}
+    #     gover_data[col] = gover_data[col].map(_map).astype(int)
 
     if 'simple' in suffix:
-
         feature_list = [
             'month_amount', 'year_amount', 'season', 'zijin', 'year'
         ] + [
             'month_amount_avg', 'y_avg', 'year_y_avg', 'sjje_per_month',
             'year_month_amount_avg'
-        ] + ['data_type']
+        ] + ['data_type'] + ['cyrs', 'kjdm', 'lszdzb', 'tzze', 'zfjglxdm']
         gover_data = gover_data[feature_list]
 
     if data_type == 'test':

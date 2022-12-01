@@ -121,11 +121,11 @@ def SecureBoostModel():
     hetero_secure_boost_0 = HeteroSecureBoost(
         name="hetero_secure_boost_0",
         learning_rate=0.2,
-        num_trees=2,
+        num_trees=14,
         task_type="regression",
         objective_param={"objective": "lse"},
         encrypt_param={"method": "Paillier"},
-        tree_param={"max_depth": 2},
+        tree_param={"max_depth": 4},
         validation_freqs=2,
         # boosting_strategy='layered',
         bin_num=1000,
