@@ -1,37 +1,36 @@
-from pathlib import Path
+import os
+from config import CONFIG
 
-data_base = Path.cwd()
-guest = 9999  # ip 18
-host = 10000  # 19
-arbiter = 10000
+output_dir = CONFIG.output_dir
+guest = CONFIG.guest  # ip 18
+host = CONFIG.host  # 19
+arbiter = CONFIG.arbiter
 partition = 1
-namespace = 'seed2022'
-print(data_base)
+namespace = CONFIG.namespace
 
-suffix = '_simple_mean'  # or _simple
+suffix = CONFIG.dataset_suffix
 
 train_data = {
-    "name": f"001_gover_data_train{suffix}",
+    "name": f"002_power_data_train{suffix}",
     "namespace": namespace,
-    'path': str(data_base / f"output/001_gover_data_train{suffix}.csv")
+    'path': str(output_dir / f"002_power_data_train{suffix}.csv")
 }
 
 test_data = {
-    "name": f"001_gover_data_test{suffix}",
+    "name": f"002_power_data_test{suffix}",
     "namespace": namespace,
-    'path': str(data_base / f"output/001_gover_data_test{suffix}.csv")
+    'path': str(output_dir / f"002_power_data_test{suffix}.csv")
 }
 
 valid_data = {
-    "name": f"001_gover_data_valid{suffix}",
+    "name": f"002_power_data_valid{suffix}",
     "namespace": namespace,
-    'path': str(data_base / f"output/001_gover_data_valid{suffix}.csv")
+    'path': str(output_dir / f"002_power_data_valid{suffix}.csv")
 }
 
-from pipeline.backend.pipeline import PipeLine
 
 def upload():
-
+    from pipeline.backend.pipeline import PipeLine
     pipeline = PipeLine()
     pipeline.set_initiator(role='guest', party_id=guest)
     pipeline.set_roles(guest=guest, host=host, arbiter=arbiter)

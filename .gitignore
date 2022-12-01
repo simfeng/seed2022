@@ -4,6 +4,8 @@ tune/*
 output/*
 guest/output/*
 host/output/*
+result/*
+model/*
 
 .DS_Store
 

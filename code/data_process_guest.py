@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
+from config import CONFIG
 
-from pathlib import Path
 
 MONTH_SEASON_MAP = {
     1: 1,
@@ -18,14 +18,15 @@ MONTH_SEASON_MAP = {
     12: 4
 }
 
-base_dir = Path.cwd().parent / '初赛数据集'
-
-suffix = '_simple_mean'
-
-def jks(data_type: str = 'train'):
+def jks(self):
     """缴款书"""
-    jks_file = base_dir / data_type / 'government_data' / 'zs_jks.csv'
-    jks_df = pd.read_csv(jks_file,
+
+    data_type = self.data_type
+    dataset_dir = self.dataset_dir
+    output_dir = self.output_dir
+
+    jks_file = dataset_dir / data_type / 'government_data' / 'zs_jks.csv'
+    jks_df = pd.read_csv(jks_file, header=[1],
                          parse_dates=['税款所属期起', '税款所属期止'
                                       ])[['公司ID', '税款所属期起', '税款所属期止', '实缴金额']]
 
@@ -35,7 +36,7 @@ def jks(data_type: str = 'train'):
         '税款所属期止': 'end_date',
         '实缴金额': 'sjje'
     })
-    print(len(jks_df['ID'].unique()))
+    # print(len(jks_df['ID'].unique()))
 
     jks_df['start_date'] = jks_df['start_date'].to_numpy().astype(
         'datetime64[M]')
@@ -55,26 +56,30 @@ def jks(data_type: str = 'train'):
     jks_df_per_month['date'] = jks_df_per_month['date'].to_numpy().astype(
         'datetime64[M]').astype(str)
     # print(jks_df_per_month.head())
-    print(jks_df.shape, np.sum(jks_df['date_len'] * jks_df['sjje_per_month']),
-        np.sum(jks_df['sjje']))
+    # print(jks_df.shape, np.sum(jks_df['date_len'] * jks_df['sjje_per_month']),
+    #     np.sum(jks_df['sjje']))
     # np.sum(jks_df_per_month['sjje_per_month'])
-    print(jks_df_per_month.shape, np.sum(jks_df['date_len']),
-        np.sum(jks_df['sjje']), np.sum(jks_df_per_month['sjje_per_month']))
+    # print(jks_df_per_month.shape, np.sum(jks_df['date_len']),
+    #     np.sum(jks_df['sjje']), np.sum(jks_df_per_month['sjje_per_month']))
     # jks_df_per_month.to_csv('a.csv')
     # jks_df.to_csv('b.csv')
-    jks_r_df = jks_df_per_month.groupby(['ID', 'date'])['sjje_per_month'].sum()
+    jks_r_df = jks_df_per_month.groupby(
+        ['ID', 'date'])['sjje_per_month'].sum().reset_index()
 
     # jks_r_df.groupby('ID').count().to_csv('ID_count.csv')
-    jks_r_df.to_csv(f'output/per_month_{data_type}.csv')
-    print('jks_r_df: ', jks_r_df.shape)
+    # jks_r_df.to_csv(f'{output_dir}/per_month_{data_type}.csv')
+    # print('jks_r_df: \n', jks_r_df.head()['date'])
     return jks_r_df, jks_df['ID'].unique()
 
-def xssr(data_type='train'):
+def xssr(self):
     """销售收入表"""
-    xssr_file = base_dir / data_type / 'government_data' / 'sb_xssr.csv'
+    data_type = self.data_type
+    dataset_dir = self.dataset_dir
+    output_dir = self.output_dir
+    xssr_file = dataset_dir / data_type / 'government_data' / 'sb_xssr.csv'
 
 
-    xssr_df = pd.read_csv(xssr_file, parse_dates=['申报日期'])[[
+    xssr_df = pd.read_csv(xssr_file, parse_dates=['申报日期'], header=[1])[[
         '公司ID', '本月数、本期数(按季申报)', '本年累计', '申报属性代码(11正常申报; 21自查补报)',
         '更正类型代码(1新产生申报表; 5更正后新产生的申报表)', '申报日期'
     ]]
@@ -99,14 +104,18 @@ def xssr(data_type='train'):
     })
     # print(xssr_df)
 
-    xssr_df.to_csv(f'output/xssr_{data_type}.csv')
+    # xssr_df.to_csv(f'{output_dir}/xssr_{data_type}.csv')
     return xssr_df
 
-def base_info(data_type='train'):
-    """企业基础信息表"""
-    base_file = base_dir / data_type / 'government_data' / 'sz_tmp_baseinfo_ent.csv'
 
-    base_df = pd.read_csv(base_file, parse_dates=['设立日期'])[[
+def base_info(self):
+    """企业基础信息表"""
+    data_type = self.data_type
+    dataset_dir = self.dataset_dir
+    output_dir = self.output_dir
+    base_file = dataset_dir / data_type / 'government_data' / 'sz_tmp_baseinfo_ent.csv'
+
+    base_df = pd.read_csv(base_file, parse_dates=['设立日期'], header=[1])[[
         '公司ID', '组织', '批准设立机关', '设立日期', '注册资本金（万元）', '行业类别',
         '状态1,在营（开业）企业、2,吊销企业、3,注销企业、4,迁出，从地方提取。不是标准代码，根据地方实际情况增加的。EX02', '所属管区'
     ]]
@@ -140,27 +149,37 @@ def base_info(data_type='train'):
 
     # print(len(base_df['ID'].unique()))
     print(base_df.head(), base_df.shape)
-    base_df.to_csv(f'output/base_info_{data_type}.csv')
+    # base_df.to_csv(f'{output_dir}/base_info_{data_type}.csv')
     return base_df
 
 
 
-def gover_data(start_date='2017-1-1',
-                end_date='2021-12-1',
-                data_type='train'):
+# def gover_data(start_date='2017-1-1',
+#                 end_date='2021-12-1',
+#                 data_type='train'):
 
-    base_df = base_info(data_type=data_type)
-    xssr_df = xssr(data_type=data_type)
-    jks_df, ID_list = jks(data_type=data_type)
+
+def gover_data(self):
+
+    base_df = base_info(self)
+    xssr_df = xssr(self)
+    jks_df, ID_list = jks(self)
+
+    data_type = self.data_type
+    suffix = self.suffix
+    output_dir = self.output_dir
+
     # print('jks columns:', jks_df)
-    df_templ = pd.DataFrame(ID_list, columns=['ID'])
 
+    # 根据企业ID和日期生成模板
+    df_templ = pd.DataFrame(ID_list, columns=['ID'])
+    start_date = jks_df['date'].min()
+    end_date = jks_df['date'].max()
     df_templ.loc[:, 'date'] = [[
-        str(d.date())
-        for d in pd.date_range(start=start_date, end=end_date, freq='MS')
+        str(d.date()) for d in pd.date_range(
+            start=start_date, end=end_date, freq='MS')
     ]] * len(df_templ)
     df_templ = df_templ.explode('date')
-    print(df_templ.shape)
     df_templ['date'] = df_templ['date'].to_numpy().astype('datetime64[M]').astype(
         str)
 
@@ -246,15 +265,13 @@ def gover_data(start_date='2017-1-1',
         valid_data = gover_data[gover_data['data_type'] == 'valid'].drop(
             columns=['data_type'])
         print('valid_data shape:', valid_data.shape)
-        valid_data.to_csv(f'output/001_gover_data_valid{suffix}.csv')
+        valid_data.to_csv(f'{output_dir}/001_gover_data_valid{suffix}.csv')
 
     gover_data = gover_data.drop(columns=['data_type'])
 
     print('gover_data shape', gover_data.shape)
-    gover_data.to_csv(f'output/001_gover_data_{data_type}{suffix}.csv')
+    gover_data.to_csv(
+        f'{output_dir}/001_gover_data_{data_type}{suffix}.csv')
 
 if __name__ == '__main__':
     data_type = 'train' # test: 处理测试数据， train: 处理训练数据
-
-    gover_data(data_type='test')
-    gover_data(data_type='train')

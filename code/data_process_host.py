@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 
-from pathlib import Path
+from config import CONFIG
 
 MONTH_SEASON_MAP = {
     1: 1,
@@ -18,13 +18,17 @@ MONTH_SEASON_MAP = {
     12: 4
 }
 
-base_dir = Path.cwd().parent / '初赛数据集'
+dataset_dir = CONFIG.base_dir / '初赛数据集'
+output_dir = CONFIG.base_dir / 'result'
 
 suffix = '_simple_mean'
 
-def power_data_jcxx(data_type):
-    jcxx_file = base_dir / data_type / 'power_data' / 'dlsj_jcxx.csv'
-    jcxx_df = pd.read_csv(jcxx_file)[[
+def power_data_jcxx(self):
+    data_type = self.data_type
+    dataset_dir = self.dataset_dir
+    output_dir = self.output_dir
+    jcxx_file = dataset_dir / data_type / 'power_data' / 'dlsj_jcxx.csv'
+    jcxx_df = pd.read_csv(jcxx_file, header=[1])[[
         '公司ID', '负荷性质', '合同容量', '用户分类', '承压', '市场化属性分类', '生产班次', '用电类别',
         '运行容量', '所属行业'
     ]]
@@ -47,21 +51,22 @@ def power_data_jcxx(data_type):
                                                              keep='first',
                                                              inplace=False)
 
-    jcxx_df.to_csv(f'output/power_data_jcxx_{data_type}.csv')
+    jcxx_df.to_csv(f'{output_dir}/power_data_jcxx_{data_type}.csv')
 
     return jcxx_df
 
 
-def power_data(data_type,
-               start_date='2019-1-1',
-               end_date='2021-12-1'):
+def power_data(self):
+    data_type = self.data_type
+    dataset_dir = self.dataset_dir
+    output_dir = self.output_dir
 
-    jcxx_df = power_data_jcxx(data_type)
+    jcxx_df = power_data_jcxx(self)
 
-    dlsj_file = base_dir / data_type / 'power_data' / 'dlsj_df.csv'
+    dlsj_file = dataset_dir / data_type / 'power_data' / 'dlsj_df.csv'
 
 
-    dlsj_df = pd.read_csv(dlsj_file, parse_dates=['应收年月'])[[
+    dlsj_df = pd.read_csv(dlsj_file, parse_dates=['应收年月'], header=[1])[[
         '公司ID', '应收年月', '费用类别', '能源量', '应收金额', '实收金额', '用能类别'
     ]]
     dlsj_df = dlsj_df.rename(columns={
@@ -79,7 +84,7 @@ def power_data(data_type,
         format="%Y%m").to_numpy().astype('datetime64[M]').astype(str)
     # dlsj_df = dlsj_df['date'].unique()
     # dlsj_df['date'] = dlsj_df['date'].to_numpy().astype('datetime64[M]').astype(str)
-    print(len(dlsj_df['fylb'].value_counts()))
+    # print(len(dlsj_df['fylb'].value_counts()))
 
     dlsj_df = dlsj_df.groupby(['ID', 'date']).agg(
         nyl=('nyl', 'sum'),
@@ -87,9 +92,11 @@ def power_data(data_type,
         ssje=('ssje', 'sum'),
         fylb=('fylb', lambda x: x.value_counts().index[0] if len(x.value_counts()) > 0 else x.mean()),
         ynlb=('ynlb', lambda x: x.value_counts().index[0] if len(x.value_counts()) > 0 else x.mean()))
-    print(dlsj_df.head())
-
+    # print(dlsj_df.head())
+    dlsj_df = dlsj_df.reset_index()
     df_templ = pd.DataFrame(ID_list, columns=['ID'])
+    start_date = dlsj_df['date'].min()
+    end_date = dlsj_df['date'].max()
     df_templ.loc[:, 'date'] = [[
         str(d.date())
         for d in pd.date_range(start=start_date, end=end_date, freq='MS')
@@ -154,16 +161,16 @@ def power_data(data_type,
         valid_data = power_data[power_data['data_type'] == 'valid'].drop(
             columns=['data_type'])
         print('valid_data shape:', valid_data.shape)
-        valid_data.to_csv(f'output/002_power_data_valid{suffix}.csv')
+        valid_data.to_csv(f'{output_dir}/002_power_data_valid{suffix}.csv')
 
     power_data = power_data.drop(columns=['data_type'])
 
     print(f'power_data {data_type}:', power_data.shape)
-    power_data.to_csv(f'output/002_power_data_{data_type}{suffix}.csv')
+    power_data.to_csv(f'{output_dir}/002_power_data_{data_type}{suffix}.csv')
 
-
-if __name__ == '__main__':
-    data_type = 'test' # test: 处理测试数据， train: 处理训练数据
+def process_host_data():
     power_data(data_type='test')
     power_data(data_type='train')
 
+if __name__ == '__main__':
+    data_type = 'test' # test: 处理测试数据， train: 处理训练数据
