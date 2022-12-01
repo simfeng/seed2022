@@ -11,7 +11,6 @@ from pipeline.interface import Model
 
 from pipeline.utils.tools import load_job_config
 
-from utils import generate_result
 from config import CONFIG
 
 
@@ -24,7 +23,6 @@ def SecureBoostModel():
     model_output_dir = CONFIG.model_output
 
     # data sets
-    suffix = "_simple_mean"
     guest_train_data = {
         "name": f"001_gover_data_train{suffix}",
         "namespace": namespace,
@@ -121,11 +119,11 @@ def SecureBoostModel():
     hetero_secure_boost_0 = HeteroSecureBoost(
         name="hetero_secure_boost_0",
         learning_rate=0.2,
-        num_trees=14,
+        num_trees=2,
         task_type="regression",
         objective_param={"objective": "lse"},
         encrypt_param={"method": "Paillier"},
-        tree_param={"max_depth": 4},
+        tree_param={"max_depth": 2},
         validation_freqs=2,
         # boosting_strategy='layered',
         bin_num=1000,

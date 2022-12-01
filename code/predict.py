@@ -8,7 +8,7 @@ from pipeline.utils.tools import load_job_config
 
 from config import CONFIG
 
-from utils import generate_result
+from .utils import generate_result
 
 
 def predict(train_job_id):
