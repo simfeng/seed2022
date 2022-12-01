@@ -51,24 +51,14 @@ def jks(self):
     jks_df['sjje_per_month'] = jks_df['sjje'] / jks_df['date_len']
 
     jks_df_per_month = jks_df.explode('date')
-    # jks_df_per_month.to_csv('output/000.csv')
+
 
     jks_df_per_month['date'] = jks_df_per_month['date'].to_numpy().astype(
         'datetime64[M]').astype(str)
-    # print(jks_df_per_month.head())
-    # print(jks_df.shape, np.sum(jks_df['date_len'] * jks_df['sjje_per_month']),
-    #     np.sum(jks_df['sjje']))
-    # np.sum(jks_df_per_month['sjje_per_month'])
-    # print(jks_df_per_month.shape, np.sum(jks_df['date_len']),
-    #     np.sum(jks_df['sjje']), np.sum(jks_df_per_month['sjje_per_month']))
-    # jks_df_per_month.to_csv('a.csv')
-    # jks_df.to_csv('b.csv')
+
     jks_r_df = jks_df_per_month.groupby(
         ['ID', 'date'])['sjje_per_month'].sum().reset_index()
 
-    # jks_r_df.groupby('ID').count().to_csv('ID_count.csv')
-    # jks_r_df.to_csv(f'{output_dir}/per_month_{data_type}.csv')
-    # print('jks_r_df: \n', jks_r_df.head()['date'])
     return jks_r_df, jks_df['ID'].unique()
 
 def xssr(self):
@@ -102,7 +92,6 @@ def xssr(self):
         'sbsx': 'max',
         'gzlx': 'max'
     })
-    # print(xssr_df)
 
     # xssr_df.to_csv(f'{output_dir}/xssr_{data_type}.csv')
     return xssr_df
@@ -154,11 +143,6 @@ def base_info(self):
 
 
 
-# def gover_data(start_date='2017-1-1',
-#                 end_date='2021-12-1',
-#                 data_type='train'):
-
-
 def gover_data(self):
 
     base_df = base_info(self)
@@ -208,8 +192,8 @@ def gover_data(self):
     if data_type == 'test':
         # 测试数据的话，把21年四季度的值置为nan, 后面在用均值填充
         merge_jks.loc[(merge_jks['season'] == 4) &
-                     (merge_jks['year'].isin([2021])),
-                     'sjje_per_month'] = np.nan
+                      (merge_jks['year'].isin([2021])),
+                      'sjje_per_month'] = np.nan
 
     merge_jks['sjje_per_month'] = merge_jks['sjje_per_month'].fillna(
         merge_jks.groupby('ID')['sjje_per_month'].transform('mean'))

@@ -1,13 +1,13 @@
 from pathlib import Path
 class CONFIG:
-    guest = 9999
-    host = [10000]
-    arbiter = 10000
+    guest = 10000
+    host = [9999]
+    arbiter = 9999
     namespace = 'seed2022'
 
-    dataset_dir = Path('/Users/zhengquan/Code/SEED2022/seed2022/初赛数据集')
+    dataset_dir = Path('/dataset/energy-management')
 
-    _base_dir = '/Users/zhengquan/Code/SEED2022/seed2022'
+    _base_dir = '/opt/project/project'
     base_dir = Path(_base_dir)
 
     model_output = base_dir / 'model'

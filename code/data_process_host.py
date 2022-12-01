@@ -51,7 +51,7 @@ def power_data_jcxx(self):
                                                              keep='first',
                                                              inplace=False)
 
-    jcxx_df.to_csv(f'{output_dir}/power_data_jcxx_{data_type}.csv')
+    # jcxx_df.to_csv(f'{output_dir}/power_data_jcxx_{data_type}.csv')
 
     return jcxx_df
 
@@ -82,9 +82,6 @@ def power_data(self):
     dlsj_df['date'] = pd.to_datetime(
         dlsj_df['date'],
         format="%Y%m").to_numpy().astype('datetime64[M]').astype(str)
-    # dlsj_df = dlsj_df['date'].unique()
-    # dlsj_df['date'] = dlsj_df['date'].to_numpy().astype('datetime64[M]').astype(str)
-    # print(len(dlsj_df['fylb'].value_counts()))
 
     dlsj_df = dlsj_df.groupby(['ID', 'date']).agg(
         nyl=('nyl', 'sum'),
@@ -168,9 +165,3 @@ def power_data(self):
     print(f'power_data {data_type}:', power_data.shape)
     power_data.to_csv(f'{output_dir}/002_power_data_{data_type}{suffix}.csv')
 
-def process_host_data():
-    power_data(data_type='test')
-    power_data(data_type='train')
-
-if __name__ == '__main__':
-    data_type = 'test' # test: 处理测试数据， train: 处理训练数据
