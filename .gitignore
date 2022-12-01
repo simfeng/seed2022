@@ -6,6 +6,7 @@ guest/output/*
 host/output/*
 result/*
 model/*
+*.zip
 
 .DS_Store
 
