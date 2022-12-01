@@ -1,6 +1,5 @@
 import pandas as pd
 import numpy as np
-from config import CONFIG
 
 
 MONTH_SEASON_MAP = {

@@ -18,11 +18,6 @@ MONTH_SEASON_MAP = {
     12: 4
 }
 
-dataset_dir = CONFIG.base_dir / '初赛数据集'
-output_dir = CONFIG.base_dir / 'result'
-
-suffix = '_simple_mean'
-
 def power_data_jcxx(self):
     data_type = self.data_type
     dataset_dir = self.dataset_dir
