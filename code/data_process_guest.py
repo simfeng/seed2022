@@ -156,16 +156,23 @@ def gover_data(self):
     # print('jks columns:', jks_df)
 
     # 根据企业ID和日期生成模板
+    print('ID_list:', ID_list)
     df_templ = pd.DataFrame(ID_list, columns=['ID'])
+    # df_templ.loc['date'] = np.nan
+    print('df_templ:\n', df_templ.head())
     start_date = jks_df['date'].min()
     end_date = jks_df['date'].max()
-    df_templ.loc[:, 'date'] = [[
-        str(d.date()) for d in pd.date_range(
-            start=start_date, end=end_date, freq='MS')
-    ]] * len(df_templ)
+    data_range = [
+        str(d.date())
+        for d in pd.date_range(start=start_date, end=end_date, freq='MS')
+    ]
+    print('date range:', start_date, end_date, df_templ.shape)
+    df_templ['date'] = [data_range] * len(df_templ)
+    # for i in range(len(df_templ)):
+    #     df_templ.at[i, 'date'] = data_range
     df_templ = df_templ.explode('date')
-    df_templ['date'] = df_templ['date'].to_numpy().astype('datetime64[M]').astype(
-        str)
+    df_templ['date'] = df_templ['date'].to_numpy().astype(
+        'datetime64[M]').astype(str)
 
     # df_templ.merge(base_df.drop_duplicates(subset=['ID']), how='left')
     merge_jks = pd.merge(df_templ, jks_df, on=['ID', 'date'], how='left')

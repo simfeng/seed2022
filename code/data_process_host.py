@@ -94,10 +94,12 @@ def power_data(self):
     df_templ = pd.DataFrame(ID_list, columns=['ID'])
     start_date = dlsj_df['date'].min()
     end_date = dlsj_df['date'].max()
-    df_templ.loc[:, 'date'] = [[
+    data_range = [
         str(d.date())
         for d in pd.date_range(start=start_date, end=end_date, freq='MS')
-    ]] * len(df_templ)
+    ]
+    print('date range:', start_date, end_date, df_templ.shape)
+    df_templ['date'] = [data_range] * len(df_templ)
     df_templ = df_templ.explode('date')
     df_templ['date'] = df_templ['date'].to_numpy().astype(
         'datetime64[M]').astype(str)
@@ -164,4 +166,3 @@ def power_data(self):
 
     print(f'power_data {data_type}:', power_data.shape)
     power_data.to_csv(f'{output_dir}/002_power_data_{data_type}{suffix}.csv')
-
