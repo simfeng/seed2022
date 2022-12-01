@@ -1,3 +1,4 @@
+import pandas as pd
 from pipeline.backend.pipeline import PipeLine
 
 from pipeline.component import Reader
@@ -62,11 +63,19 @@ def predict(train_job_id):
     predict_pipeline.predict()
     predict_result = predict_pipeline.get_component(
         "hetero_secure_boost_0").get_output_data()
-    print("Showing 10 data of predict result")
-    print(predict_result.head(10))
+
+    # 这部分只适用于FATE1.8
+    columns = predict_result['meta']
+    data = [i.split(',') for i in predict_result['data'][1:]]
+
+    predict_result = pd.DataFrame(data=data, columns=columns)
+    print(predict_result.head(), predict_result.shape)
     predict_result_file = output_dir / f'predict_{train_job_id}.csv'
-    submit_result_file = output_dir / f'result_{train_job_id}.csv'
+    submit_result_file = output_dir / f'result.csv'
     predict_result.to_csv(predict_result_file)
 
     generate_result(input_file=predict_result_file,
                     output_file=submit_result_file)
+
+if __name__ == '__main__':
+    predict('202212010623049051320')
