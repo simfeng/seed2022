@@ -14,8 +14,8 @@ upload data采用SDK的方式分别上传到guest和host。
 │   ├── predict.py              # 预测及结果处理，生成result.csv
 │   ├── train.py                # 模型训练
 │   ├── upload.py               # 上传数据
+│   ├── config.py                   # 配置文件
 │   └── utils.py                # 一些工具函数
-├── config.py                   # 配置文件
 ├── description
 │   └── description.md          # 本说明
 ├── main.py                     # 入口文件

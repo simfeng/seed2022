@@ -41,7 +41,7 @@ def rydl(self):
                                                             ]).reset_index()
     rydl_df['rydl'] = rydl_df['rydl'].fillna(
         rydl_df.groupby('ID')['rydl'].transform('mean'))
-        
+
     return rydl_df
 
 def power_data_jcxx(self):
@@ -78,11 +78,10 @@ def power_data_jcxx(self):
 
 
 def power_data(self):
-    data_type = self.data_type
     dataset_dir = self.dataset_dir
     output_dir = self.output_dir
     suffix = self.suffix
-
+    data_type = self.data_type
     jcxx_df = power_data_jcxx(self)
     rydl_df = rydl(self)
 
@@ -171,15 +170,6 @@ def power_data(self):
         if x['year'] == 2021 and x['season'] == 4 else 'valid',
         axis=1)
 
-    # categorical columns
-    # cate_columns = [
-    #     'year', 'season', 'fylb', 'ynlb', 'fhxz', 'yhfl', 'schsxfl', 'scbc',
-    #     'ydlb', 'sshy'
-    # ]
-    # for col in cate_columns:
-    #     _map = {key: i for i, key in enumerate(power_data[col].unique())}
-    #     power_data[col] = power_data[col].map(_map).astype(int)
-
     if 'simple' in suffix:
         feature_list = ['nyl', 'ysje', 'ssje', 'season', 'ynlb', 'year'
                         ] + ['data_type'] + ['ysje_avg', 'nyl_avg'] + ['rydl']
@@ -194,4 +184,41 @@ def power_data(self):
     power_data = power_data.drop(columns=['data_type'])
 
     print(f'power_data {data_type}:', power_data.shape)
-    power_data.to_csv(f'{output_dir}/002_power_data_{data_type}{suffix}.csv')
+    output_file = f'{output_dir}/002_power_data_{data_type}{suffix}.csv'
+    power_data.to_csv(output_file)
+    return output_file
+
+
+def data_process(self):
+    self.data_type = 'train'
+    train_output_file = power_data(self)
+    self.data_type = 'test'
+    test_output_file = power_data(self)
+    vaild_output_file = test_output_file.replace('test', 'valid')
+    train_df = pd.read_csv(train_output_file)
+    test_df = pd.read_csv(test_output_file)
+    valid_df = pd.read_csv(vaild_output_file)
+
+    categorical_columns = [
+        'year', 'season', 'fylb', 'ynlb', 'fhxz', 'yhfl', 'schsxfl', 'scbc',
+        'ydlb', 'sshy'
+    ]
+    for col in train_df.columns:
+        if col in categorical_columns:
+            val_list = list(
+                set(
+                    list(train_df[col].unique()) +
+                    list(test_df[col].unique())))
+            print('\tcategorical ', col, val_list)
+            _map = {key: i for i, key in enumerate(val_list)}
+            train_df[col] = train_df[col].map(_map).astype(int)
+            test_df[col] = test_df[col].map(_map).astype(int)
+            valid_df[col] = valid_df[col].map(_map).astype(int)
+        else:
+            train_df[col] = train_df[col].fillna(train_df[col].mean())
+            test_df[col] = test_df[col].fillna(test_df[col].mean())
+            valid_df[col] = valid_df[col].fillna(valid_df[col].mean())
+
+    train_df.to_csv(train_output_file, index=False)
+    test_df.to_csv(test_output_file, index=False)
+    valid_df.to_csv(vaild_output_file, index=False)

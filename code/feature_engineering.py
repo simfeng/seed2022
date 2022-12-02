@@ -1,6 +1,6 @@
 from .config import CONFIG
-from .data_process_guest import gover_data
-from .data_process_host import power_data
+from .data_process_guest import data_process as data_process_guest
+from .data_process_host import data_process as data_process_host
 
 class FeatureEng:
 
@@ -12,21 +12,11 @@ class FeatureEng:
         self.data_type = ''
 
     def process_guest_data(self) -> None:
-        print('self.data:', self.data_type)
-        self.data_type = 'train'
-        gover_data(self)
-
-        self.data_type = 'test'
-        gover_data(self)
+        data_process_guest(self)
 
 
     def process_host_data(self) -> None:
-        print('self.data:', self.data_type)
-        self.data_type = 'train'
-        power_data(self)
-
-        self.data_type = 'test'
-        power_data(self)
+        data_process_host(self)
 
 
 if __name__ == '__main__':

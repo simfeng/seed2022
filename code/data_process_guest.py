@@ -174,13 +174,11 @@ def base_info(self):
 
 
 def gover_data(self):
-
+    data_type = self.data_type
     kz_df = gskz(self)
     base_df = base_info(self)
     xssr_df = xssr(self)
     jks_df, ID_list = jks(self)
-
-    data_type = self.data_type
     suffix = self.suffix
     output_dir = self.output_dir
 
@@ -292,8 +290,46 @@ def gover_data(self):
     gover_data = gover_data.drop(columns=['data_type'])
 
     print('gover_data shape', gover_data.shape)
-    gover_data.to_csv(
-        f'{output_dir}/001_gover_data_{data_type}{suffix}.csv')
+    output_file = f'{output_dir}/001_gover_data_{data_type}{suffix}.csv'
+    gover_data.to_csv(output_file)
+    return output_file
+
+def data_process(self):
+    self.data_type = 'train'
+    train_output_file = gover_data(self)
+    self.data_type = 'test'
+    test_output_file = gover_data(self)
+    vaild_output_file = test_output_file.replace('test', 'valid')
+    train_df = pd.read_csv(train_output_file)
+    test_df = pd.read_csv(test_output_file)
+    valid_df = pd.read_csv(vaild_output_file)
+
+
+    categorical_columns = [
+        'year', 'season', 'sbsx', 'gzlx', 'zuzhi', 'jiguan', 'zt', 'hylb',
+        'jiguan', 'ssxq', 'slrq', 'kjdm', 'zfjglxdm'
+    ]
+    for col in train_df.columns:
+        if col in categorical_columns:
+            val_list = list(
+                set(
+                    list(train_df[col].unique()) +
+                    list(test_df[col].unique())))
+            print('\tcategorical ', col, val_list)
+            _map = {key: i for i, key in enumerate(val_list)}
+            train_df[col] = train_df[col].map(_map).astype(int)
+            test_df[col] = test_df[col].map(_map).astype(int)
+            valid_df[col] = valid_df[col].map(_map).astype(int)
+        else:
+            train_df[col] = train_df[col].fillna(train_df[col].mean())
+            test_df[col] = test_df[col].fillna(test_df[col].mean())
+            valid_df[col] = valid_df[col].fillna(valid_df[col].mean())
+
+    train_df.to_csv(train_output_file, index=False)
+    test_df.to_csv(test_output_file, index=False)
+    valid_df.to_csv(vaild_output_file, index=False)
+
+
 
 if __name__ == '__main__':
     data_type = 'train' # test: 处理测试数据， train: 处理训练数据
