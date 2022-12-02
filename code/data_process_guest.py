@@ -44,6 +44,8 @@ def gskz(self):
     kz_df['cyrs'] = kz_df['cyrs'].fillna(kz_df['cyrs'].mean())
     kz_df['lszdzb'] = kz_df['lszdzb'].fillna(kz_df['lszdzb'].mean())
     kz_df['tzze'] = kz_df['tzze'].fillna(kz_df['tzze'].mean())
+    kz_df['kjdm'] = kz_df['kjdm'].fillna(kz_df['kjdm'].mode()[0])
+    kz_df['zfjglxdm'] = kz_df['zfjglxdm'].fillna(kz_df['zfjglxdm'].mode()[0])
 
     return kz_df
 

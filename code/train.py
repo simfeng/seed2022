@@ -11,7 +11,7 @@ from pipeline.interface import Model
 
 from pipeline.utils.tools import load_job_config
 
-from config import CONFIG
+from .config import CONFIG
 
 
 def SecureBoostModel():
@@ -94,7 +94,7 @@ def SecureBoostModel():
     intersect_1 = Intersection(name="intersection_1")
 
     # secure boost component
-    """ 19333101.099907372
+    # """ 19333101.099907372
     hetero_secure_boost_0 = HeteroSecureBoost(
         name="hetero_secure_boost_0",
         learning_rate=0.2,
@@ -102,7 +102,7 @@ def SecureBoostModel():
         task_type="regression",
         objective_param={"objective": "lse"},
         encrypt_param={"method": "Paillier"},
-        tree_param={"max_depth": 4},
+        tree_param={"max_depth": 5},
         validation_freqs=2,
         # boosting_strategy='layered',
         bin_num=1000,
@@ -114,8 +114,8 @@ def SecureBoostModel():
         host_depth=4
 
     )
+    # """
     """
-
     hetero_secure_boost_0 = HeteroSecureBoost(
         name="hetero_secure_boost_0",
         learning_rate=0.2,
@@ -133,8 +133,8 @@ def SecureBoostModel():
         tree_num_per_party=10,
         guest_depth=4,
         host_depth=4
-
     )
+    """
 
     # evaluation component
     evaluation_0 = Evaluation(name="evaluation_0", eval_type="regression")

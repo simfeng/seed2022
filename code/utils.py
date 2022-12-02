@@ -1,5 +1,5 @@
 import pandas as pd
-import numpy as np
+import os
 import matplotlib.pyplot as plt
 from pathlib import Path
 
@@ -32,4 +32,12 @@ def generate_result(input_file, output_file):
     submit_df[['ID', 'predict_result']].to_csv(output_file,
                                                index=False,
                                                header=False)
+    try:
+        os.makedirs('/result', exist_ok=True)
+        submit_df[['ID', 'predict_result']].to_csv('/result/result.csv',
+                                                index=False,
+                                                header=False)
+    except:
+        print('ERROR: save /result/result.csv error')
 
+                        

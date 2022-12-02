@@ -1,7 +1,7 @@
 import os
 import time
 
-from config import CONFIG
+from .config import CONFIG
 
 output_dir = CONFIG.output_dir
 guest = CONFIG.guest  # ip 18

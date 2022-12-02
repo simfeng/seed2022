@@ -1,5 +1,5 @@
 import os
-from config import CONFIG
+from .code.config import CONFIG
 
 os.system(f'pipeline init --ip {CONFIG.guest_ip} --port {CONFIG.guest_port}')
 

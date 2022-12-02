@@ -6,7 +6,7 @@ from pipeline.interface import Data
 
 from pipeline.utils.tools import load_job_config
 
-from config import CONFIG
+from .config import CONFIG
 
 from .utils import generate_result
 

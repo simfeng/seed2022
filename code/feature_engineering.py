@@ -1,4 +1,4 @@
-from config import CONFIG
+from .config import CONFIG
 from .data_process_guest import gover_data
 from .data_process_host import power_data
 
