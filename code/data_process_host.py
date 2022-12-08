@@ -1,5 +1,8 @@
 import pandas as pd
 import numpy as np
+from sklearn.preprocessing import FunctionTransformer
+
+log_transform = FunctionTransformer(np.log1p)
 
 MONTH_SEASON_MAP = {
     1: 1,
@@ -170,11 +173,6 @@ def power_data(self):
         if x['year'] == 2021 and x['season'] == 4 else 'valid',
         axis=1)
 
-    if 'simple' in suffix:
-        feature_list = ['nyl', 'ysje', 'ssje', 'season', 'ynlb', 'year'
-                        ] + ['data_type'] + ['ysje_avg', 'nyl_avg'] + ['rydl']
-        power_data = power_data[feature_list]
-
     if data_type == 'test':
         valid_data = power_data[power_data['data_type'] == 'valid'].drop(
             columns=['data_type'])
@@ -203,6 +201,25 @@ def data_process(self):
         'year', 'season', 'fylb', 'ynlb', 'fhxz', 'yhfl', 'schsxfl', 'scbc',
         'ydlb', 'sshy'
     ]
+    simple_feature_list = [
+        'sid', 'nyl', 'ysje', 'ssje', 'season', 'ynlb', 'year', 'ysje_avg',
+        'nyl_avg', 'rydl'
+    ]
+    log_scale_columns = [
+        'nyl', 'ysje', 'ssje', 'ysje_avg', 'nyl_avg', 'rydl'
+    ]
+
+    if 'log_scale' in self.suffix:
+        for col in log_scale_columns:
+            train_df[col] = log_transform.fit_transform(train_df[col])
+            test_df[col] = log_transform.fit_transform(test_df[col])
+            valid_df[col] = log_transform.fit_transform(valid_df[col])
+
+    if 'simple' in self.suffix:
+        train_df = train_df[simple_feature_list]
+        test_df = test_df[simple_feature_list]
+        valid_df = valid_df[simple_feature_list]
+
     for col in train_df.columns:
         if col in categorical_columns:
             val_list = list(

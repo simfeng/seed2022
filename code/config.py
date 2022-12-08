@@ -12,7 +12,7 @@ class CONFIG:
 
     model_output = base_dir / 'model'
     output_dir = base_dir / 'result'
-    dataset_suffix = '_all' # _simple_mean 表示在特征处理时只选取部分特征； _all 表示在特征处理时选取全部特征；
+    dataset_suffix = '_simple_mean' # _simple_mean 表示在特征处理时只选取部分特征； _all 表示在特征处理时选取全部特征；
 
 
     host_ip = '127.0.0.1'

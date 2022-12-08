@@ -93,48 +93,30 @@ def SecureBoostModel():
     intersect_0 = Intersection(name="intersection_0")
     intersect_1 = Intersection(name="intersection_1")
 
-    # secure boost component
-    # """ 19333101.099907372
     hetero_secure_boost_0 = HeteroSecureBoost(
         name="hetero_secure_boost_0",
         learning_rate=0.2,
-        num_trees=14,
+        num_trees=18,
         task_type="regression",
         objective_param={"objective": "lse"},
         encrypt_param={"method": "Paillier"},
-        tree_param={"max_depth": 5},
-        validation_freqs=2,
+        tree_param={
+            "max_depth": 4,
+            "criterion_params": {
+                'l1': 0.1,
+                'l2': 0.3
+            },
+            "deterministic": True
+        },
+        early_stopping_rounds=1,
+        validation_freqs=1,
         # boosting_strategy='layered',
         bin_num=1000,
         run_goss=True,
         # subsample_feature_rate=0.9,
-        # work_mode=1,
         tree_num_per_party=10,
         guest_depth=4,
-        host_depth=4
-
-    )
-    # """
-    """
-    hetero_secure_boost_0 = HeteroSecureBoost(
-        name="hetero_secure_boost_0",
-        learning_rate=0.2,
-        num_trees=2,
-        task_type="regression",
-        objective_param={"objective": "lse"},
-        encrypt_param={"method": "Paillier"},
-        tree_param={"max_depth": 2},
-        validation_freqs=2,
-        # boosting_strategy='layered',
-        bin_num=1000,
-        run_goss=True,
-        # subsample_feature_rate=0.9,
-        # work_mode=1,
-        tree_num_per_party=10,
-        guest_depth=4,
-        host_depth=4
-    )
-    """
+        host_depth=4)
 
     # evaluation component
     evaluation_0 = Evaluation(name="evaluation_0", eval_type="regression")

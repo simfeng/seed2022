@@ -1,4 +1,6 @@
 import pandas as pd
+import numpy as np
+from sklearn.metrics import mean_squared_error
 from pipeline.backend.pipeline import PipeLine
 
 from pipeline.component import Reader
@@ -69,6 +71,19 @@ def predict(train_job_id):
     data = [i.split(',') for i in predict_result['data'][1:]]
 
     predict_result = pd.DataFrame(data=data, columns=columns)
+
+    if 'log_scale' in CONFIG.dataset_suffix:
+        predict_result['label'] = np.exp(
+            predict_result['label'].astype('float')) + 1
+        predict_result['predict_result'] = np.exp(
+            predict_result['predict_result'].astype('float')) + 1
+
+    mse = mean_squared_error(predict_result['label'],
+                             predict_result['predict_result'])
+    rmse = mse**(0.5)
+    print("MSE: %.2f" % mse)
+    print("RMSE: %.2f" % rmse)
+
     print(predict_result.head(), predict_result.shape)
     predict_result_file = output_dir / f'predict_{train_job_id}.csv'
     submit_result_file = output_dir / f'result.csv'

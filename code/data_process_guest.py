@@ -1,5 +1,8 @@
 import pandas as pd
 import numpy as np
+from sklearn.preprocessing import FunctionTransformer
+
+log_transform = FunctionTransformer(np.log1p)
 
 
 MONTH_SEASON_MAP = {
@@ -263,24 +266,6 @@ def gover_data(self):
         if x['year'] == 2021 and x['season'] == 4 else 'valid',
         axis=1)
 
-    # categorical columns
-    # cate_columns = [
-    #     'year', 'season', 'sbsx', 'gzlx', 'zuzhi', 'jiguan', 'zt', 'hylb',
-    #     'jiguan', 'ssxq', 'slrq'
-    # ]
-    # for col in cate_columns:
-    #     _map = {key: i for i, key in enumerate(gover_data[col].unique())}
-    #     gover_data[col] = gover_data[col].map(_map).astype(int)
-
-    if 'simple' in suffix:
-        feature_list = [
-            'month_amount', 'year_amount', 'season', 'zijin', 'year'
-        ] + [
-            'month_amount_avg', 'y_avg', 'year_y_avg', 'sjje_per_month',
-            'year_month_amount_avg'
-        ] + ['data_type'] + ['cyrs', 'kjdm', 'lszdzb', 'tzze', 'zfjglxdm']
-        gover_data = gover_data[feature_list]
-
     if data_type == 'test':
         valid_data = gover_data[gover_data['data_type'] == 'valid'].drop(
             columns=['data_type'])
@@ -309,6 +294,30 @@ def data_process(self):
         'year', 'season', 'sbsx', 'gzlx', 'zuzhi', 'jiguan', 'zt', 'hylb',
         'jiguan', 'ssxq', 'slrq', 'kjdm', 'zfjglxdm'
     ]
+
+    log_scale_columns = [
+        'sjje_per_month', 'month_amount', 'year_amount', 'y_avg', 'year_y_avg',
+        'month_amount_avg', 'year_month_amount_avg', 'zijin', 'cyrs', 'lszdzb',
+        'tzze'
+    ]
+
+    simple_feature_list = [
+        'sid', 'month_amount', 'year_amount', 'season', 'zijin',
+        'month_amount_avg', 'y_avg', 'year_y_avg', 'sjje_per_month',
+        'year_month_amount_avg', 'cyrs', 'kjdm', 'lszdzb', 'tzze'
+    ]
+
+    if 'log_scale' in self.suffix:
+        for col in log_scale_columns:
+            train_df[col] = log_transform.fit_transform(train_df[col])
+            test_df[col] = log_transform.fit_transform(test_df[col])
+            valid_df[col] = log_transform.fit_transform(valid_df[col])
+
+    if 'simple' in self.suffix:
+        train_df = train_df[simple_feature_list]
+        test_df = test_df[simple_feature_list]
+        valid_df = valid_df[simple_feature_list]
+
     for col in train_df.columns:
         if col in categorical_columns:
             val_list = list(
